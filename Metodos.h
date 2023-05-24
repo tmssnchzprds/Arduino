@@ -39,12 +39,12 @@ void comprobarTEMPERATURAS_DS18B20() {
         
         String nombreTopic = "/" + NOMPLACA + "/" + sensorTempDs18b20[i].nomSendorTemp;
              
-             nombreTopic.toCharArray(TOPIC_TEMPERATURA_DS18B20_PE, 50);
-            
-             Serial.println("Enviando "+sensorTempDs18b20[i].nomSendorTemp+": [" +  String(TOPIC_TEMPERATURA_DS18B20_PE) + "] " + strtemp);
-            
-             /// ******* PUBLICACION MQTT ******** ////
-             client.publish(TOPIC_TEMPERATURA_DS18B20_PE, valueStr);  //Publica en mqtt la temperatura del sensor obtenida
+        nombreTopic.toCharArray(TOPIC_TEMPERATURA_DS18B20_PE, 50);
+      
+        Serial.println("Enviando "+sensorTempDs18b20[i].nomSendorTemp+": [" +  String(TOPIC_TEMPERATURA_DS18B20_PE) + "] " + strtemp);
+      
+        /// ******* PUBLICACION MQTT ******** ////
+        client.publish(TOPIC_TEMPERATURA_DS18B20_PE, valueStr);  //Publica en mqtt la temperatura del sensor obtenida
       }
                        
     }
@@ -121,7 +121,6 @@ void reconnect() {
       }  
       contSiDesconexion++;
 
-    
     Serial.print("Intentando conexion MQTT...");
     // Crea un ID de cliente al azar
     String clientId = "ESP8266Client-";
@@ -205,6 +204,41 @@ void almacenarDireccionFisica(){
 
 }
 
+//------------------------RUIDO -----------------------------
+
+
+void comprobarRUIDO() {
+  
+  String strtemp = "";
+  
+  if(tiempoActual > (tiempoRuido+3000)){  //Si ha pasado 30 segundos (30000=30 segundos)
+
+        int lightVal;                     // guarda el valor de la luminosidad
+        
+        //valor maximo del sensor es 4095
+        tiempoRuido=tiempoActual;
+                
+        char valueStr[50];  //  Este array de caracteres contendrá la temperatura obtenida del sensor Ds18b20 en un momento de tiempo determinado.
+
+        lightVal = analogRead(RuidoPin); // Lee el nivel de luz actual
+        
+        strtemp = String(lightVal);   // **************   Valor Luminosidad en texto *************
+        
+        strtemp.toCharArray(valueStr, 50);  //Se pasa la temperatura al array de caracteres valueStr, formato necesario para publicarla en mqtt
+        
+        
+        String nombreTopic = "/" + NOMPLACA + "/RUIDO";
+             
+             nombreTopic.toCharArray(TOPIC_RUIDO, 50);
+            
+             Serial.println("Ruido: " + strtemp);
+            
+             /// ******* PUBLICACION MQTT ******** ////
+             client.publish(TOPIC_RUIDO, valueStr);  //Publica en mqtt la temperatura del sensor obtenida
+      }
+  
+} 
+
 //------------------------LUMINOSIDAD -----------------------------
 
 
@@ -212,7 +246,7 @@ void comprobarLUMINOSIDAD() {
   
   String strtemp = "";
   
-  if(tiempoActual > (tiempoLuminosidad+30000)){  //Si ha pasado 30 segundos (30000=30 segundos)
+  if(tiempoActual > (tiempoLuminosidad+3000)){  //Si ha pasado 30 segundos (30000=30 segundos)
 
         int lightVal;                     // guarda el valor de la luminosidad
         
@@ -224,7 +258,7 @@ void comprobarLUMINOSIDAD() {
         lightVal = analogRead(LDRPin); // Lee el nivel de luz actual
         
         strtemp = String(lightVal);   // **************   Valor Luminosidad en texto *************
-        
+
         strtemp.toCharArray(valueStr, 50);  //Se pasa la temperatura al array de caracteres valueStr, formato necesario para publicarla en mqtt
         
         
@@ -239,10 +273,16 @@ void comprobarLUMINOSIDAD() {
       }
   
 } 
+ 
 //------------------------ *************************************************** -------------------------------------- 
 
+// Complete Instructions to Get and Change ESP MAC Address: https://RandomNerdTutorials.com/get-change-esp32-esp8266-mac-address-arduino/
 
-
+#ifdef ESP32
+  #include <WiFi.h>
+#else
+  #include <ESP8266WiFi.h>
+#endif
 //------------------------PRESION ATMOSFÉRICA, Y ALTITUD -----------------------------
 void comprobarPRESION_ATMOSFERICA() {
 
@@ -450,14 +490,14 @@ void comprobarHUMEDAD() {
         
     // Reading temperature or humidity takes about 250 milliseconds!
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-  float Humedad_DHT22 = dht.readHumidity();
+  float Humedad_DHT11 = dht.readHumidity();
   // Read temperature as Celsius (the default)
-  float Temp_DHT22_C = dht.readTemperature();
+//  float Temp_DHT11_C = dht.readTemperature();
   // Read temperature as Fahrenheit (isFahrenheit = true)
-  float Temp_DHT22_F = dht.readTemperature(true);
+//  float Temp_DHT11_F = dht.readTemperature(true);
 
   // Check if any reads failed and exit early (to try again).
-  if (isnan(Humedad_DHT22) || isnan(Temp_DHT22_C) || isnan(Temp_DHT22_F)) {
+  if (isnan(Humedad_DHT11) ) {
     Serial.println(F("Failed to read from DHT sensor!"));
     return;
   }
@@ -466,7 +506,7 @@ void comprobarHUMEDAD() {
     Serial.println();
         
         String Humedad_Temp;
-        Humedad_Temp = String(Humedad_DHT22) + ":" + String(Temp_DHT22_C) + ":" + String(Temp_DHT22_F);
+        Humedad_Temp = String(Humedad_DHT11);
         
         tiempoHumedad=tiempoActual;
         
@@ -477,7 +517,7 @@ void comprobarHUMEDAD() {
         strtemp.toCharArray(valueStr, 50);  //Se pasa la temperatura al array de caracteres valueStr, formato necesario para publicarla en mqtt
         
         
-        String nombreTopic = "/" + NOMPLACA + "/Humedad_Temp_DHT22";
+        String nombreTopic = "/" + NOMPLACA + "/Humedad_Temp_DHT11";
              
         nombreTopic.toCharArray(TOPIC_HUMEDAD_TEMP, 50);
             

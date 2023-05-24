@@ -12,7 +12,7 @@
 // String nombreTopic = "/" + NOMPLACA + "/" + sensorTempDs18b20[i].nomSendorTemp;
              
 //******************************* DEFINICIONES ***************************
-String NOMPLACA = "ies/planta0/patio"; 
+String NOMPLACA = "ies/AULAateca"; 
 #define ONE_WIRE_BUS 4                    // DS18B20 on ESP32 corresponds to G4 on Placa Física
 //------------------------------------
 
@@ -35,8 +35,8 @@ struct datoSensorDs18b20{
 
 
 
-const char* ssid     = "";   //wifi a la que se conecta la placa
-const char* password = "";   //contraseña wifi a la que se conecta la placa
+const char* ssid     = "Inf_Prof";   //wifi a la que se conecta la placa
+const char* password = "Inf_Prof2022";   //contraseña wifi a la que se conecta la placa
 
 datoSensorDs18b20 sensorTempDs18b20[10];          //Array de 10 sensores.
 unsigned long intervalo_Toma_Temp_DS18B20[10];    //Variable que almacena el intervalo de tiempo en el que se producirá la próxima lectura de temperatura
@@ -48,20 +48,21 @@ datoSensorDs18b20 sensorTempAuxiliar;
 int numSensoresDs18b20;
 
 /////// en local mosquitto 
-char   SERVER[50]   = ""; //ip del servidor mqtt
+char   SERVER[50]   = "172.31.1.199"; //ip del servidor mqtt
 int    SERVERPORT   = 1883;
-String USERNAME = "";   //usuario mqtt
-char   PASSWORD[50] = "";  //contraseña mqtt    
+String USERNAME = "iabd";   //usuario mqtt
+char   PASSWORD[50] = "iabd";  //contraseña mqtt    
 
 
 char TOPIC_TEMPERATURA_DS18B20_PE[50]; //Temperatura en array de caracteres necesario para publicar en mqtt
 char TOPIC_LUMINOSIDAD[50]; //Luminosidad mqtt
+char TOPIC_RUIDO[50]; //Luminosidad mqtt
 char TOPIC_VIENTO[50]; //Valor de Viento para mqtt
 char TOPIC_LLUVIA[50]; //Valor de Lluvia para mqtt
 char TOPIC_HUMEDAD_TEMP[50]; // unido datos de Temp Humedad
 char TOPIC_TEMP_PRESION_ALTITUD[50]; // unido datos de Temp Presion Altitud mqtt
 
-
+unsigned long tiempoRuido = 0;
 unsigned long tiempoLuminosidad = 0;
 unsigned long tiempoViento = 0;
 unsigned long tiempoLluvia = 0;
@@ -79,7 +80,7 @@ unsigned long tiempoActual = 0;
 unsigned long tiempoComprobarPresionAtmosferica = 300000;
 unsigned long tiempoComprobarViento = 5000; //Cada 5 seg (1000=1 segundos)
 unsigned long tiempoComprobarLluvia = 60000;   // LLuvia caida en 1 minuto (=60000) (1000=1 segundos)
-unsigned long tiempoComprobarHumedad = 240000;   // Si ha pasado 4 minutos(1000=1 segundos)       
+unsigned long tiempoComprobarHumedad = 5000;   // Si ha pasado 4 minutos(1000=1 segundos)       
 
 
 
@@ -97,7 +98,8 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 //-------------------------------------------------------------------------
 
-const int LDRPin = 36;            //pin de entrada sensor de luminosidad (resistencia lumínica)
+const int LDRPin = 36;//pin de entrada sensor de luminosidad (resistencia lumínica)
+const int RuidoPin = 35;
 const int pinSensorViento = 35;   //pin de sensor de viento (solo entrada)
 const int pinSensorLluvia = 34;   //pin 34 de sensor de lluvia (solo entrada)
 
@@ -116,7 +118,7 @@ byte ultimoEstadoContactoViento = LOW;  //Variable para medir un intervalo de ti
 byte ultimoEstadoContactoLluvia = LOW;  //Variable para medir un intervalo de tiempo en concreto (utilizada para lluvia)
 /////datos Humedad
 const int DHTPIN = 17;   //pin 17 de sensor DHT22 humedad y temp
-DHT dht(DHTPIN, DHT22);   //DHT22 es el tipo de sensor
+DHT dht(DHTPIN, DHT11);   //DHT11 es el tipo de sensor
 
 
 

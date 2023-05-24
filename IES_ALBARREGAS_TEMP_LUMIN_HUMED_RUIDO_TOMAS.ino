@@ -14,8 +14,6 @@
 #include "Variables.h"
 #include "Metodos.h"
 
-#include "ESP8266_Utils_OTA.hpp"
-
 
 //-----------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------  SETUP -----------------------------------------------------------
@@ -25,10 +23,6 @@ void setup(){
   Serial.begin(115200);
   Serial.println("COMENZANDO EL SETUP .................................");
   pinMode(ledLuminosidad, OUTPUT);
-  pinMode(pinSensorViento, INPUT);
-  pinMode(pinSensorLluvia, INPUT);
-
-  //inicializa sensor humedad DHT22
   dht.begin();
 
   
@@ -45,24 +39,15 @@ void setup(){
     Serial.println("Connecting to WiFi..");
   }
  
-  Serial.println("Connected to the WiFi educarexDEV");
+  Serial.println("Connected to the WiFi");
   Serial.println();
   Serial.print("MAC: ");
   Serial.println(WiFi.macAddress());
-
+  Serial.print("IP: ");  
+  Serial.println(WiFi.localIP());
   
    // Start up the library
   sensors_DS19B20.begin();
-
-   //inicialización sensor bmp (presión atmosférica, altitud,temp)
-   if (!bmp.begin(0x76)) {
-    Serial.println(F("Could not find a valid BMP280 sensor, check wiring or "
-                      "try a different address!"));
-   // while (1) delay(10);
-  }
-
-  //inicialización OTA
-	InitOTA();
 
   almacenarDireccionFisica();   //ALMACENA LA DIRECCION FISICA DE CADA SENSOR DS18B20 EN LA ESTRUTURA ARRAY CREADA PARA ELLO
 
@@ -90,19 +75,22 @@ void loop(){
 
 
    //Se obtiene presión atmosférica
-  comprobarPRESION_ATMOSFERICA();
+   //comprobarPRESION_ATMOSFERICA();
 
    //Se obtiene velocidad del viento 
-  comprobarVIENTO();
+   //comprobarVIENTO();
 
   //Se obtiene cantidad de lluvia
-  comprobarLLUVIA();
+   //comprobarLLUVIA();
 
    //Se obtiene presión atmosférica
   comprobarHUMEDAD();
   
   //Se obtiene el nivel de luminosidad
   comprobarLUMINOSIDAD();
+
+  //Se obtiene el nivel de luminosidad
+  comprobarRUIDO();
   
   //Se comprueba si hay que leer las temperaturas (de todos los sensores DS18B20)
   comprobarTEMPERATURAS_DS18B20();
